@@ -344,7 +344,7 @@ export default function App() {
             Pilot Municipality: Polokwane (Limpopo Province). Goal: faster
             response times and transparent tracking of service delivery issues
             like potholes, sewer blockages, garbage, water leaks, and broken
-            streetlights. :contentReference[oaicite:2]{index=2}
+            streetlights.
           </section>
         </div>
       </main>
