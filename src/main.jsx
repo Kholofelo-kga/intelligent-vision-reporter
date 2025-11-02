@@ -10,10 +10,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        {/* Citizen / community reporter view */}
         <Route path="/" element={<App />} />
-
-        {/* Municipality dashboard view */}
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
