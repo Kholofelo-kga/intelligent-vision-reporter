@@ -7,7 +7,7 @@ export default function WelcomePage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-primary-500 text-white text-center p-6">
       <h1 className="text-3xl font-bold mb-2">Polokwane Service Reporter</h1>
       <p className="text-white/90 mb-6 max-w-md">
-        Report potholes, sewer blockages, garbage, leaks, and more directly to the municipality.
+        Report potholes, sewer blockages, garbage, leaks, and other issues directly to Polokwane Municipality.
       </p>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
