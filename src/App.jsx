@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import "@tensorflow/tfjs";
 
+import { db } from "./firebase.js";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 // speak out loud what was detected
 function speak(text) {
   const synth = window.speechSynthesis;
@@ -16,37 +19,65 @@ export default function App() {
   const canvasRef = useRef(null);
 
   const [model, setModel] = useState(null);
+
+  // live detection result
   const [lastLabel, setLastLabel] = useState("No object yet");
+
+  // AI summary from /api/ai-report
   const [aiReport, setAiReport] = useState("AI report will appear here...");
   const [loadingChatGPT, setLoadingChatGPT] = useState(false);
 
+  // form state for resident
   const [userDescription, setUserDescription] = useState("");
 
-  // STEP 1: ask camera + load ML model
+  // GPS state
+  const [gps, setGps] = useState({ lat: null, lng: null });
+
+  // submission progress
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState("");
+
+  // STEP 1: ask for camera + load ML model + get GPS when page loads
   useEffect(() => {
     async function setupCameraAndModel() {
       try {
-        // request camera
+        // 1. request camera
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" }, // back camera on phones
+          video: { facingMode: "environment" }, // back camera for phone
           audio: false,
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
 
-        // load object detection model
+        // 2. load object detection model
         const loadedModel = await cocoSsd.load();
         setModel(loadedModel);
+
+        // 3. get GPS
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              setGps({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+              });
+            },
+            (err) => {
+              console.warn("GPS error", err);
+              setGps({ lat: null, lng: null });
+            }
+          );
+        }
       } catch (err) {
-        console.error("Camera/model setup failed:", err);
+        console.error("Setup failed:", err);
       }
     }
 
     setupCameraAndModel();
   }, []);
 
-  // STEP 2: run detection in a loop
+  // STEP 2: run live detection in a loop
   useEffect(() => {
     let rafId;
 
@@ -60,17 +91,17 @@ export default function App() {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
 
-      // sync canvas size to video
+      // sync canvas size with video stream
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      // get predictions
+      // detect objects
       const predictions = await model.detect(video);
 
-      // draw camera frame
+      // draw current frame from camera
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // draw boxes/labels
+      // draw prediction boxes/labels
       predictions.forEach((p) => {
         const [x, y, w, h] = p.bbox;
 
@@ -90,7 +121,7 @@ export default function App() {
         );
       });
 
-      // pick top prediction
+      // choose the top (most confident) prediction
       if (predictions.length > 0) {
         const top = predictions[0];
         const label = top.class;
@@ -107,7 +138,7 @@ export default function App() {
     return () => cancelAnimationFrame(rafId);
   }, [model, lastLabel]);
 
-  // STEP 3: call AI endpoint (/api/ai-report) to generate professional report text
+  // STEP 3: call AI endpoint to generate formal municipal report text
   async function generateAIReport() {
     try {
       setLoadingChatGPT(true);
@@ -130,15 +161,46 @@ export default function App() {
     }
   }
 
-  // STEP 4: (placeholder for now) submit report button
-  // Later this will:
-  // - capture GPS
-  // - capture photo snapshot
-  // - save to Firebase with status = "NEW"
-  function handleSubmitReport() {
-    alert(
-      "Report submission will: save issue type, description, GPS, timestamp, photo to database for Polokwane Municipality. (We wire this in next step.)"
-    );
+  // helper: take snapshot from canvas as Base64 image
+  function captureSnapshotDataUrl() {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    // take the current canvas (which already has bounding boxes drawn)
+    return canvas.toDataURL("image/jpeg", 0.8); // base64 string
+  }
+
+  // STEP 4: submit report to Firestore
+  async function handleSubmitReport() {
+    try {
+      setSubmitting(true);
+      setSubmitStatus("");
+
+      const photoDataUrl = captureSnapshotDataUrl();
+
+      // build the record we will save
+      const newReport = {
+        detectedType: lastLabel || null,
+        description: userDescription || "",
+        aiSummary: aiReport || "",
+        gpsLat: gps.lat,
+        gpsLng: gps.lng,
+        photo: photoDataUrl, // base64 image
+        status: "NEW", // municipality side will later update to IN_PROGRESS, RESOLVED
+        createdAt: serverTimestamp(),
+      };
+
+      // save to Firestore "reports" collection
+      await addDoc(collection(db, "reports"), newReport);
+
+      // reset form
+      setUserDescription("");
+      setSubmitStatus("Report submitted to municipality ✅");
+    } catch (err) {
+      console.error("Error saving report:", err);
+      setSubmitStatus("Failed to submit report ❌");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -166,6 +228,17 @@ export default function App() {
           <div className="absolute top-4 left-4 bg-primary-600/90 px-4 py-2 rounded-xl shadow text-white text-sm font-medium">
             {lastLabel ? `Detected: ${lastLabel}` : "Detecting..."}
           </div>
+
+          {/* floating GPS */}
+          <div className="absolute bottom-4 left-4 bg-white/90 text-textc-100 text-[11px] leading-tight px-3 py-2 rounded-xl shadow">
+            <div className="font-semibold text-[11px] text-primary-500">
+              GPS
+            </div>
+            <div>
+              Lat: {gps.lat ? gps.lat.toFixed(5) : "…"} <br />
+              Lng: {gps.lng ? gps.lng.toFixed(5) : "…"}
+            </div>
+          </div>
         </div>
 
         {/* RIGHT: AI summary + form */}
@@ -176,10 +249,10 @@ export default function App() {
               Intelligent Vision Reporter
             </h1>
             <p className="text-sm text-textc-100/80 leading-relaxed">
-              This tool helps residents report municipal issues (potholes,
-              sewage leaks, uncollected waste, damaged streetlights). The camera
-              uses AI to identify the issue, speaks it out loud, and can draft a
-              professional incident report for municipal staff.
+              Residents can report potholes, sewer blockages, uncollected
+              garbage, leaks, or broken streetlights. The system captures
+              evidence (photo + GPS), classifies the issue, and sends it to
+              Polokwane Municipality for action.
             </p>
           </section>
 
@@ -231,26 +304,47 @@ export default function App() {
               />
             </label>
 
+            {/* GPS display */}
+            <div className="text-[11px] text-textc-100/80 leading-relaxed">
+              <div className="font-semibold text-primary-500 text-[11px]">
+                Location (auto):
+              </div>
+              <div>
+                Lat: {gps.lat ? gps.lat.toFixed(5) : "…"} | Lng:{" "}
+                {gps.lng ? gps.lng.toFixed(5) : "…"}
+              </div>
+            </div>
+
             {/* Submit button */}
             <button
               onClick={handleSubmitReport}
-              className="bg-accent-500 hover:opacity-90 active:scale-[.98] transition rounded-xl px-4 py-3 text-black font-semibold text-sm shadow-lg"
+              disabled={submitting}
+              className="bg-accent-500 hover:opacity-90 active:scale-[.98] transition rounded-xl px-4 py-3 text-black font-semibold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Report to Municipality
+              {submitting
+                ? "Submitting..."
+                : "Submit Report to Municipality"}
             </button>
 
+            {submitStatus && (
+              <div className="text-[11px] text-textc-100/80 leading-relaxed">
+                {submitStatus}
+              </div>
+            )}
+
             <div className="text-[10px] text-textc-100/60 leading-relaxed">
-              When you submit, the system will attach GPS location, timestamp,
-              and a snapshot photo as evidence. The municipality will see it on
-              their dashboard and update the status.
+              When you submit, the system stores your evidence (photo snapshot,
+              AI summary, GPS, timestamp) as a new case with status "NEW". City
+              staff can mark it IN_PROGRESS or RESOLVED.
             </div>
           </section>
 
           {/* Footer note */}
           <section className="text-[10px] text-textc-100/60 leading-relaxed">
-            Pilot Municipality: Polokwane (Limpopo Province). This platform aims
-            to improve response time for potholes, sewer blockages, uncollected
-            garbage, water leaks, and broken streetlights.
+            Pilot Municipality: Polokwane (Limpopo Province). Goal: faster
+            response times and transparent tracking of service delivery issues
+            like potholes, sewer blockages, garbage, water leaks, and broken
+            streetlights. :contentReference[oaicite:2]{index=2}
           </section>
         </div>
       </main>
