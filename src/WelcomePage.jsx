@@ -31,7 +31,7 @@ export default function WelcomePage() {
       </div>
 
       <div className="text-[10px] text-white/70 leading-relaxed mt-8 max-w-xs">
-        Your GPS location is captured to help maintenance teams find the exact spot.
+        Your GPS location is captured to help teams find the exact spot.
       </div>
     </div>
   );
