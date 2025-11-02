@@ -20,5 +20,14 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "vite": "^5.4.10"
-  }
+  },
+  "dependencies": {
+  "@tensorflow-models/coco-ssd": "^2.2.2",
+  "@tensorflow/tfjs": "^4.22.0",
+  "firebase": "^11.0.0",
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "react-router-dom": "^6.28.0"
+},
+
 }
