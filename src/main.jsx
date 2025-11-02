@@ -10,10 +10,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        {/* Public / community view (camera + submit) */}
+        {/* Citizen / community reporter view */}
         <Route path="/" element={<App />} />
 
-        {/* Municipality dashboard */}
+        {/* Municipality dashboard view */}
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
