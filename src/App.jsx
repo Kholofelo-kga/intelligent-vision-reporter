@@ -152,7 +152,8 @@ export default function App() {
           </p>
         </header>
 
-        <div className="bg-slate-800 rounded-2xl p-4 shadow ring-2 ring-slate-700 flex flex-col gap-3 min-h-[200px]">
+       <div className="bg-white rounded-2xl p-4 shadow ring-2 ring-primary-500/20">
+
           <div className="text-slate-400 text-xs uppercase tracking-wide">
             AI Report
           </div>
