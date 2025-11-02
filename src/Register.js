@@ -2,34 +2,26 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    // Save to browser / device storage
     localStorage.setItem("userName", name);
     localStorage.setItem("userEmail", email);
-
-    // After registering, go to the reporter camera page
     navigate("/report");
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background-100 text-textc-100 p-6">
-      {/* Heading */}
-      <h1 className="text-2xl font-bold mb-2 text-primary-600">
-        Register
-      </h1>
+      <h1 className="text-2xl font-bold mb-2 text-primary-600">Register</h1>
 
       <p className="text-sm mb-6 text-center text-textc-100/70 leading-relaxed max-w-xs">
-        Please provide your details so the municipality can contact you
-        for follow-up. You can also continue as a guest from the first screen.
+        Enter your details so the municipality can contact you for follow-up.
+        You can also continue as a guest from the first screen.
       </p>
 
-      {/* Form */}
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 w-full max-w-xs bg-white rounded-xl shadow p-4 border border-primary-500/10"
@@ -68,7 +60,6 @@ export default function Register() {
         </button>
       </form>
 
-      {/* Back link */}
       <button
         onClick={() => navigate("/")}
         className="text-[11px] text-primary-600 font-medium mt-4 hover:underline active:scale-[.98] transition"
@@ -76,10 +67,8 @@ export default function Register() {
         ← Go Back
       </button>
 
-      {/* Footer note */}
       <div className="text-[10px] text-textc-100/60 leading-relaxed mt-6 max-w-xs text-center">
-        Your details will be attached to the report (for example:
-        "Reported by: K J Kgatla"). This helps speed up response.
+        Your details will be attached to the report for accountability.
       </div>
     </div>
   );
