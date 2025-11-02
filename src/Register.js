@@ -8,7 +8,6 @@ export default function Register() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    // Save basic info to localStorage
     localStorage.setItem("userName", name);
     localStorage.setItem("userEmail", email);
     navigate("/report");
@@ -16,11 +15,9 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background-100 text-textc-100 p-6">
-      <h1 className="text-2xl font-bold mb-2 text-primary-600">
-        Register
-      </h1>
+      <h1 className="text-2xl font-bold mb-2 text-primary-600">Register</h1>
       <p className="text-sm mb-6 text-center text-textc-100/70">
-        Enter your name and email to register before reporting.
+        Enter your name and email before reporting issues.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-xs">
