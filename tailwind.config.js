@@ -2,19 +2,16 @@ extend: {
   colors: {
     primary: {
       500: '#007A33', // Polokwane green
-      600: '#00662B'
+      600: '#00662B',
     },
     accent: {
-      500: '#FDB913', // bright gold
-    },
-    secondary: {
-      500: '#004B8D', // civic blue
+      500: '#FDB913', // service-delivery gold
     },
     background: {
-      100: '#F4F4F4',
+      100: '#F4F4F4', // page bg
     },
-    text: {
-      100: '#1E1E1E',
-    }
+    textc: {
+      100: '#1E1E1E', // readable dark text
+    },
   },
 },
