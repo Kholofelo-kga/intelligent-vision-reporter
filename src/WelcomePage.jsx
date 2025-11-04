@@ -10,8 +10,8 @@ export default function WelcomePage() {
       </h1>
 
       <p className="text-white/90 mb-6 max-w-md text-sm leading-relaxed">
-        Help Polokwane Municipality respond faster. Report potholes, sewer leaks, 
-        uncollected waste, and broken streetlights. You can register for full access 
+        Help Polokwane Municipality respond faster. Report potholes, sewer leaks,
+        uncollected waste, and broken streetlights. You can register for full access
         or continue as a guest.
       </p>
 
