@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import WelcomePage from "./WelcomePage.jsx";
-import Register from "./Register.js"; // <- match actual file extension
+import Register from "./Register.jsx";
 import App from "./App.jsx";
 import Admin from "./Admin.jsx";
 import "./index.css";
