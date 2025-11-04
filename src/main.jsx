@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import WelcomePage from "./WelcomePage.jsx";
 import Register from "./Register.jsx";
-import App from "./App.jsx";
-import Admin from "./Admin.jsx";
+import App from "./App.jsx";       // camera + reporting page
+import Admin from "./Admin.jsx";   // admin dashboard
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
