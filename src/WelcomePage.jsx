@@ -5,14 +5,11 @@ export default function WelcomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-primary-600 text-white text-center p-6">
-      <h1 className="text-3xl font-bold mb-3">
-        Polokwane Service Reporter
-      </h1>
+      <h1 className="text-3xl font-bold mb-3">Polokwane Service Reporter</h1>
 
       <p className="text-white/90 mb-6 max-w-md text-sm leading-relaxed">
         Help Polokwane Municipality respond faster. Report potholes, sewer leaks,
-        uncollected waste, and broken streetlights. You can register for full access
-        or continue as a guest.
+        uncollected waste and broken streetlights.
       </p>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -30,10 +27,6 @@ export default function WelcomePage() {
           Continue as Guest
         </button>
       </div>
-
-      <footer className="mt-8 text-xs text-white/70">
-        Limpopo Smart Municipality Project – Powered by AI & Cloud
-      </footer>
     </div>
   );
 }
